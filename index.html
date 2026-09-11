@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nudgehog - Gentle Reminders with Spikes</title>
+<style>
+:root{--bg:#140f0a;--ink:#f0e4d0;--dim:#9a8a70;--accent:#fbbf24;--line:#2e2418;--card:#1f1810}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:26px 14px}
+h1{font-size:24px;letter-spacing:6px;color:var(--accent);text-transform:uppercase}
+.sub{color:var(--dim);letter-spacing:2px;font-size:10.5px;text-transform:uppercase;margin-top:6px}
+#hog{margin:18px 0;text-align:center}
+#hog .emoji{font-size:64px;display:block;transition:transform .3s}
+#hog .mood{font-size:11px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-top:8px}
+#nudge{margin:8px 0;min-height:24px;font-size:14px;color:var(--accent);text-align:center;transition:opacity .3s}
+#addrow{display:flex;gap:8px;width:min(560px,94vw);margin-top:12px}
+input{background:var(--card);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-family:inherit;font-size:13px;padding:11px 12px;flex:1;outline:none}
+input:focus{border-color:var(--accent)}
+button{cursor:pointer;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:11px 14px;font-family:inherit;font-size:12.5px;letter-spacing:1px;text-transform:uppercase;transition:border-color .15s}
+button:hover{border-color:var(--accent)}
+#tasks{width:min(560px,94vw);margin-top:14px;display:grid;gap:9px}
+.task{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+.task .t{flex:1;font-size:13.5px}
+.task .n{font-size:10.5px;color:var(--dim);letter-spacing:1px}
+.task button{padding:7px 10px;font-size:11px}
+.done{opacity:.5}.done .t{text-decoration:line-through}
+</style>
+</head>
+<body>
+<h1>Nudgehog</h1>
+<div class="sub">a hedgehog that nudges &middot; gently, but with spikes</div>
+<div id="hog"><span class="emoji" id="hogemoji">🦔</span><div class="mood" id="hogmood"></div></div>
+<div id="nudge"></div>
+<div id="addrow">
+<input id="task" placeholder="thing you keep putting off" maxlength="80">
+<button id="add">Add</button>
+</div>
+<div id="tasks"></div>
+<script>
+const $=id=>document.getElementById(id);
+let tasks=JSON.parse(localStorage.getItem('nudgehog')||'[]');
+function save(){localStorage.setItem('nudgehog',JSON.stringify(tasks));}
+const NUDGES=['psst. that thing. still there.','the hog believes in you. barely.','it takes two minutes. the hog counted.','nudge. nudge nudge. nudge.','the spikes are a metaphor for urgency.','you said you would. the hog remembers.','future you is watching. so is the hog.'];
+function mood(){
+ const open=tasks.filter(t=>!t.done).length;
+ if(!tasks.length)return['🦔','the hog awaits purpose'];
+ if(!open)return['🦔','the hog is at peace. spikes retracted.'];
+ if(open<=2)return['🦔','the hog is watchful'];
+ if(open<=4)return['🦔','the hog is concerned'];
+ return['🦔','the hog is vibrating with nudges'];
+}
+function render(){
+ const[m,m2]=mood();$('hogemoji').textContent=m;$('hogmood').textContent=m2;
+ const el=$('tasks');el.innerHTML='';
+ tasks.forEach((t,i)=>{
+  const d=document.createElement('div');d.className='task'+(t.done?' done':'');
+  d.innerHTML='<div class="t">'+t.text.replace(/</g,'&lt;')+'<div class="n">nudged '+t.nudges+'x</div></div>';
+  const dn=document.createElement('button');dn.textContent=t.done?'undo':'did it';
+  dn.onclick=()=>{t.done=!t.done;save();render();};
+  const del=document.createElement('button');del.textContent='x';
+  del.onclick=()=>{tasks.splice(i,1);save();render();};
+  d.appendChild(dn);d.appendChild(del);el.appendChild(d);});
+}
+function nudge(){
+ const open=tasks.filter(t=>!t.done);
+ const n=$('nudge');
+ if(!open.length){n.textContent='';return;}
+ const t=open[Math.floor(Math.random()*open.length)];
+ t.nudges++;save();
+ n.style.opacity=0;
+ setTimeout(()=>{n.textContent='🦔 "'+t.text+'" - '+NUDGES[Math.floor(Math.random()*NUDGES.length)];n.style.opacity=1;},200);
+ $('hogemoji').style.transform='translateX(8px)';
+ setTimeout(()=>$('hogemoji').style.transform='',250);
+ render();
+}
+$('add').onclick=()=>{const t=$('task').value.trim();if(!t)return;tasks.unshift({text:t,done:false,nudges:0});$('task').value='';save();render();};
+$('task').addEventListener('keydown',e=>{if(e.key==='Enter')$('add').click();});
+setInterval(nudge,8000);
+render();setTimeout(nudge,1500);
+</script>
+</body>
+</html>
