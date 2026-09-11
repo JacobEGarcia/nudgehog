@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nudgehog - Gentle Reminders with Spikes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,500&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f1e4; --card:#fffdf6; --line:#e3d7bd; --line2:#d3c4a3;
+  --ink:#2e2318; --dim:#8b7a5e; --faint:#b3a480;
+  --hog:#7c4a21; --hog-face:#e3bd8d; --amber:#c06a1d; --leaf:#5c7a3f;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Karla',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 60px}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(900px 400px at 50% -8%,rgba(192,106,29,.07),transparent 60%)}
+.wrap{width:min(600px,95vw)}
+header{text-align:center}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:38px;letter-spacing:-.5px}
+h1 em{font-style:italic;font-weight:500;color:var(--amber)}
+.sub{color:var(--dim);font-size:12.5px;letter-spacing:2px;text-transform:uppercase;margin-top:8px;font-weight:500}
+#hog{margin:26px auto 6px;text-align:center}
+#hogstage{display:inline-block;transition:transform .3s}
+#hog .mood{font-family:'Fraunces',serif;font-style:italic;font-size:14.5px;color:var(--dim);margin-top:10px}
+#nudge{margin:14px auto 4px;min-height:48px;width:min(480px,92vw);font-size:14.5px;line-height:1.6;color:var(--ink);text-align:center;transition:opacity .3s;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px;display:flex;align-items:center;justify-content:center}
+#nudge:empty{display:none}
+#nudge q{quotes:"\201C" "\201D";font-family:'Fraunces',serif;font-style:italic}
+#nudge .src{display:block;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--amber);font-weight:700;margin-top:4px}
+#addrow{display:flex;gap:8px;margin-top:14px}
+input{background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:inherit;font-size:14px;padding:12px 14px;flex:1;outline:none;transition:border-color .15s}
+input:focus{border-color:var(--amber)}
+input::placeholder{color:var(--faint)}
+button{cursor:pointer;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-family:inherit;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;transition:border-color .15s,color .15s}
+button:hover{border-color:var(--amber);color:var(--amber)}
+#add{background:var(--amber);border-color:var(--amber);color:#fffaf0}
+#add:hover{background:#a85a17;color:#fffaf0}
+#tasks{margin-top:14px;display:grid;gap:8px}
+.task{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;display:flex;align-items:center;gap:12px}
+.task .t{flex:1;font-size:14.5px;font-weight:500}
+.task .n{font-size:10.5px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;margin-top:2px;font-weight:700}
+.task button{padding:7px 11px;font-size:10.5px;border-radius:8px}
+.task .did{color:var(--leaf);border-color:var(--leaf)}
+.task .did:hover{background:var(--leaf);color:#fffdf6}
+.done{opacity:.5}.done .t{text-decoration:line-through}
+.empty{color:var(--faint);font-family:'Fraunces',serif;font-style:italic;font-size:14.5px;text-align:center;padding:18px;border:1px dashed var(--line2);border-radius:12px}
+footer{margin-top:30px;color:var(--faint);font-size:10.5px;letter-spacing:1.8px;text-transform:uppercase;text-align:center;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Nudge<em>hog</em></h1>
+  <div class="sub">A hedgehog that nudges &middot; gently, but with spikes</div>
+</header>
+<div id="hog">
+  <div id="hogstage">
+    <svg width="150" height="96" viewBox="0 0 150 96" fill="none" aria-label="a hedgehog">
+      <ellipse cx="78" cy="86" rx="52" ry="5" fill="#e3d7bd"/>
+      <path d="M38 78 C24 70 22 50 34 38 L40 44 L46 30 L54 40 L61 25 L69 37 L77 22 L85 36 L93 24 L100 38 L108 28 L113 42 L120 36 C130 46 132 66 122 78 Z" fill="#7c4a21"/>
+      <path d="M38 78 C26 72 24 56 33 47 C40 50 45 56 47 64 C48 70 45 75 38 78 Z" fill="#e3bd8d"/>
+      <circle cx="31" cy="60" r="2.4" fill="#2e2318"/>
+      <circle cx="24" cy="68" r="3.2" fill="#2e2318"/>
+      <path d="M20 70 q-4 1 -6 3" stroke="#2e2318" stroke-width="2" stroke-linecap="round"/>
+      <rect x="56" y="78" width="7" height="8" rx="3" fill="#5a3517"/>
+      <rect x="100" y="78" width="7" height="8" rx="3" fill="#5a3517"/>
+      <path d="M61 25 L69 37 L77 22 L85 36 L93 24" stroke="#5a3517" stroke-width="2" fill="none" stroke-linejoin="round" opacity=".55"/>
+    </svg>
+  </div>
+  <div class="mood" id="hogmood"></div>
+</div>
+<div id="nudge"></div>
+<div id="addrow">
+<input id="task" placeholder="the thing you keep putting off" maxlength="80">
+<button id="add">Add</button>
+</div>
+<div id="tasks"></div>
+<footer>one nudge every eight seconds &middot; no mercy, only love</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let tasks=JSON.parse(localStorage.getItem('nudgehog')||'[]');
+function save(){localStorage.setItem('nudgehog',JSON.stringify(tasks));}
+const NUDGES=['psst. that thing. still there.','the hog believes in you. barely.','it takes two minutes. the hog counted.','nudge. nudge nudge. nudge.','the spikes are a metaphor for urgency.','you said you would. the hog remembers.','future you is watching. so is the hog.'];
+function mood(){
+ const open=tasks.filter(t=>!t.done).length;
+ if(!tasks.length)return'the hog awaits purpose';
+ if(!open)return'the hog is at peace. spikes retracted.';
+ if(open<=2)return'the hog is watchful';
+ if(open<=4)return'the hog is concerned';
+ return'the hog is vibrating with nudges';
+}
+function render(){
+ $('hogmood').textContent=mood();
+ const el=$('tasks');el.innerHTML='';
+ if(!tasks.length){el.innerHTML='<div class="empty">nothing on the list. the hog is bored.</div>';return;}
+ tasks.forEach((t,i)=>{
+  const d=document.createElement('div');d.className='task'+(t.done?' done':'');
+  d.innerHTML='<div class="t">'+t.text.replace(/</g,'&lt;')+'<div class="n">nudged '+t.nudges+'x</div></div>';
+  const dn=document.createElement('button');dn.textContent=t.done?'undo':'did it';dn.className='did';
+  dn.onclick=()=>{t.done=!t.done;save();render();};
+  const del=document.createElement('button');del.textContent='x';
+  del.onclick=()=>{tasks.splice(i,1);save();render();};
+  d.appendChild(dn);d.appendChild(del);el.appendChild(d);});
+}
+function nudge(){
+ const open=tasks.filter(t=>!t.done);
+ const n=$('nudge');
+ if(!open.length){n.textContent='';return;}
+ const t=open[Math.floor(Math.random()*open.length)];
+ t.nudges++;save();
+ n.style.opacity=0;
+ setTimeout(()=>{n.innerHTML='<span><q>'+t.text.replace(/</g,'&lt;')+'</q> - '+NUDGES[Math.floor(Math.random()*NUDGES.length)]+'<span class="src">a nudge, re: your list</span></span>';n.style.opacity=1;},200);
+ $('hogstage').style.transform='translateX(8px)';
+ setTimeout(()=>$('hogstage').style.transform='',250);
+ render();
+}
+$('add').onclick=()=>{const t=$('task').value.trim();if(!t)return;tasks.unshift({text:t,done:false,nudges:0});$('task').value='';save();render();};
+$('task').addEventListener('keydown',e=>{if(e.key==='Enter')$('add').click();});
+setInterval(nudge,8000);
+render();setTimeout(nudge,1500);
+</script>
+</body>
+</html>
